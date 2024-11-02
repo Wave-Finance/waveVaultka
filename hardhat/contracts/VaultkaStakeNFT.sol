@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Burnable.sol";
 contract VaultkaStakeNFT is ERC721, ERC721Pausable, Ownable, ERC721Burnable {
     uint256 private _nextTokenId;
 
-    constructor(address initialOwner) ERC721("VaultkaStakeNFT", "vsNFT") {
+    constructor(address initialOwner) ERC721("VaultkaStakeNFT", "vsNFT") Ownable(msg.sender) {
         transferOwnership(initialOwner);
     }
 

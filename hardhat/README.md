@@ -1,13 +1,9 @@
-# Sample Hardhat Project
+拉出项目后在根目录下使用以下命令下载相关依赖
+```
+nmp i
+```
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a Hardhat Ignition module that deploys that contract.
-
-Try running some of the following tasks:
-
-```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat ignition deploy ./ignition/modules/Lock.ts
+添加了合约之后使用以下命令对整个contracts目录合约进行编译,不要放入无法编译的合约到工程
+```
+npx hardhat compile
 ```
