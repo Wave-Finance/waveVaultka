@@ -96,7 +96,7 @@ contract MVKAMinter is IMVKAMinter,AccessControl{
             MVKAOrder memory mvkaorder= MVKAOrder({
                   id:orderId,
                   owner: msg.sender,
-                  orderType: 0,
+                  orderType: 0,//todo 0 for stakeVKA and 1 for Unwrap NFT, nextTime use enum take place it
                   mvkaNumber: mvkaNumber,
                   startTime:block.timestamp,
                   lockTime: lockTime,
