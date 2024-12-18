@@ -10,13 +10,13 @@ contract MVKAMinter is IMVKAMinter,AccessControl{
       uint256 orderType;
       uint256 mvkaNumber;
       uint256 startTime;
-      uint lockTime;
+      uint  lockTime;
       bool isClaimed;
     }
     
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
-    bool isWihdrawBlocked;
-    uint256 lockTime;
+    bool public isWihdrawBlocked;
+    uint256 public lockTime;
 //fixme 未初始化
     mapping(address=>MVKAOrder[]) public usersOrder;
     mapping(uint256=>MVKAOrder) public sys_order;
@@ -29,12 +29,12 @@ contract MVKAMinter is IMVKAMinter,AccessControl{
     event OrderMinted(address minter,uint256 mintedTime,uint256 lockTime,uint256 stakedVkaNumber,uint256 mvkaNumber);
 
 
-     constructor(uint lockTime,address adminUser,address pauser,address mvkaAddress,address vkaAddress){
+     constructor(uint _lockTime,address adminUser,address pauser,address vkaAddress){
             _grantRole(ADMIN_ROLE, adminUser);
             orderId=0;
-            mvka=MVKAToken(mvkaAddress);
-            isWihdrawBlocked=false;
-            lockTime=lockTime;
+            mvka=new MVKAToken(address(this),address(this),address(this));
+            lockTime=_lockTime;
+            isWihdrawBlocked=true;
             vka=VKAToken(vkaAddress);
       }
 
@@ -82,14 +82,14 @@ contract MVKAMinter is IMVKAMinter,AccessControl{
     *         arbitrage,mvka tokens will be locked for a certain period of time and can be withdrawn
     * Todo change mvka transfered addreess to aggregatorAddress
     */    
-      function mintMKAByStakeVKA(uint vkaNumberStaked,uint minumMkaReceived) override  external{
+      function mintMVKAByStakeVKA(uint vkaNumberStaked,uint minumMkaReceived) override  external{
             require(vkaNumberStaked>0);
             // market Rate add randomRewardRate
             uint256 rate=(getRateFromUniswapV3Pool()+getRandomNumber());
             // compute mvkNumber that user could get
             uint256 mvkaNumber=vkaNumberStaked*rate;
             require(mvkaNumber>minumMkaReceived);
-            (bool status)=vka.transfer(address(this), vkaNumberStaked);     
+            (bool status)=vka.transferFrom(msg.sender,address(this), vkaNumberStaked);     
             require(status==true);
             // add new order
             orderId++;
@@ -131,7 +131,8 @@ contract MVKAMinter is IMVKAMinter,AccessControl{
             MVKAOrder memory  mvkaOrder=sys_order[orderId];
             address orderOwner=mvkaOrder.owner;
             uint256 mvkaNumber=mvkaOrder.mvkaNumber;
-            require(orderOwner==msg.sender&&mvkaOrder.isClaimed==false);
+            // todo timestamp check
+            require(orderOwner==msg.sender&&mvkaOrder.isClaimed==false&&isWihdrawBlocked==false);
             mvka.mint(msg.sender,mvkaNumber);
       //update OrderStatus 
       // todo wrap a function for update
@@ -158,6 +159,10 @@ contract MVKAMinter is IMVKAMinter,AccessControl{
     function changeLockTime(uint orderType,uint lockTime)external override onlyRole(ADMIN_ROLE){
             lockTime=lockTime;
      }
+    function  openWithdraw()external onlyRole(ADMIN_ROLE) {
+      isWihdrawBlocked=false;
+    }  
+
 /*
  * Internal Function 
  */
@@ -165,12 +170,12 @@ contract MVKAMinter is IMVKAMinter,AccessControl{
       * @notice getARandomNumberFromChainlink 
       */
       function getRandomNumber() internal returns(uint256){
-            return 2;
+            return 1;
       }
       /**
       * @notice get MVKA/VKA Rate From UniswapV3Pool 
       */
       function getRateFromUniswapV3Pool() internal returns(uint256){
-            return 3;
+            return 1;
       }
 }

@@ -38,7 +38,7 @@ interface IMVKAMinter {
     * @notice Stake vka Token for mvka based on market exchange rates and a randomRewardRate,In order to prevent 
     *         arbitrage,mvka tokens will be locked for a certain period of time and can be withdrawn
     */    
-    function mintMKAByStakeVKA(uint vkaNumberStaked,uint minumMkaReceived) external;
+    function mintMVKAByStakeVKA(uint vkaNumberStaked,uint minumMkaReceived) external;
 
     /** 
     * @param owner NFTOwner 
