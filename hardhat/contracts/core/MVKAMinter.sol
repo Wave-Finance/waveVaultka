@@ -18,14 +18,14 @@ contract MVKAMinter is IMVKAMinter,AccessControl{
     bool isWihdrawBlocked;
     uint256 lockTime;
 //fixme 未初始化
-    mapping(address=>MVKAOrder[]) public userOrder;
+    mapping(address=>MVKAOrder[]) public usersOrder;
     mapping(uint256=>MVKAOrder) public sys_order;
     MVKAToken public mvka;
     VKAToken public vka;
     uint256 orderId;
 
     event MVKAMinted(address staker,uint256 mintedTime,uint256 mvkaNumber);
-    event VeNFTUnwraped(address owner,uint256 nftId,uint lockTime);
+    event VeNFTisUnwraped(address owner,uint256 nftId,uint lockTime);
     event OrderMinted(address minter,uint256 mintedTime,uint256 lockTime,uint256 stakedVkaNumber,uint256 mvkaNumber);
 
 
@@ -64,8 +64,8 @@ contract MVKAMinter is IMVKAMinter,AccessControl{
       /**
        *@notice getOrdersOfUser
        */
-      function getUserOrders()external view returns(MVKAOrder[]){
-            return userOrder[msg.sender];
+      function getUserOrders()external view returns(MVKAOrder[] memory){
+            return usersOrder[msg.sender];
       }
       
 
@@ -103,15 +103,12 @@ contract MVKAMinter is IMVKAMinter,AccessControl{
                   isClaimed: false
             });
             MVKAOrder[] memory orders;
-            orders=userOrder[msg.sender];
-            MVKAOrder[] memory newOrders = new MVKAOrder[](orders.length + 1);
-            for (uint i = 0; i < orders.length; i++) {
-                  newOrders[i] = orders[i];
-           }
-            newOrders[orders.length] = mvkaorder;
-      //      updateOrder
-            userOrder[msg.sender]=newOrders;
+
+            MVKAOrder[] storage userOrders=usersOrder[msg.sender];
+            userOrders.push(mvkaorder);
+            usersOrder[msg.sender]=userOrders;
             sys_order[orderId]=mvkaorder;
+            // update order
             emit OrderMinted(msg.sender,block.timestamp,lockTime,vkaNumberStaked,mvkaNumber);
             }
      
@@ -127,22 +124,22 @@ contract MVKAMinter is IMVKAMinter,AccessControl{
     
       /**
       * 
-      * @param withdrawNumber how much mvkaUserWantWithdraw
+      * @param orderId orderId that withdrawed
       * @notice withdraw mvka from contract 
       */
       function withdrawMvka(uint orderId)external override{
-            MVKAOrder mvkaOrder=sys_order[orderId];
-            address orderOwner=mvkaOrder[onwer];
-            uint256 mvkaNumber=mvkaOrder[mvkaNumber];
-            require(orderOwner==msg.sender&&mvkaOrder[isClaimed]==false);
-            mvka.mint(msg.sender,order,mvkaNumber);
+            MVKAOrder memory  mvkaOrder=sys_order[orderId];
+            address orderOwner=mvkaOrder.owner;
+            uint256 mvkaNumber=mvkaOrder.mvkaNumber;
+            require(orderOwner==msg.sender&&mvkaOrder.isClaimed==false);
+            mvka.mint(msg.sender,mvkaNumber);
       //update OrderStatus 
       // todo wrap a function for update
-            mvkaOrder[isClaimed]==true;
-            mvkaOrder[]ordersOfUser=userOrder[msg.sender];
+            mvkaOrder.isClaimed=true;
+            MVKAOrder[] memory ordersOfUser=usersOrder[msg.sender];
             for(uint i=0;i<ordersOfUser.length;i++){
-                  if(ordersOfUser[i][id]==orderId){
-                        ordersOfUser[i][isClaimed]=true;
+                  if(ordersOfUser[i].id==orderId){
+                        ordersOfUser[i].isClaimed=true;
                   }
             }
             emit MVKAMinted(msg.sender,block.timestamp,mvkaNumber);     
@@ -164,15 +161,15 @@ contract MVKAMinter is IMVKAMinter,AccessControl{
 /*
  * Internal Function 
  */
-/**
- * @notice getARandomNumberFromChainlink 
- */
+      /**
+      * @notice getARandomNumberFromChainlink 
+      */
       function getRandomNumber() internal returns(uint256){
             return 2;
       }
-/**
- * @notice get MVKA/VKA Rate From UniswapV3Pool 
- */
+      /**
+      * @notice get MVKA/VKA Rate From UniswapV3Pool 
+      */
       function getRateFromUniswapV3Pool() internal returns(uint256){
             return 3;
       }

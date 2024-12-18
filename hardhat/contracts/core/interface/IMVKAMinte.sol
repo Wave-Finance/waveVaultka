@@ -5,9 +5,9 @@ pragma solidity ^0.8.20;
  * @notice Contract that could MintMvka by Stake VkaToken or unwrap VeNFT
  */
 interface IMVKAMinter {
-    event MVKAMinted(address staker,uint256 MintedTime,uint256 stakedVkaNumber,uint256 mvkaNumber,uint256 randomRewardNumber,uint256 lockTime);
-    event VeNFTUnwraped(address owner,uint256 nftId,uint lockTime);
-    event OrderMinted()
+    // event MVKAMinted(address staker,uint256 MintedTime,uint256 stakedVkaNumber,uint256 mvkaNumber,uint256 randomRewardNumber,uint256 lockTime);
+    // event VeNFTisUnwraped (address owner,uint256 nftId,uint lockTim) ;
+    // event OrderMinted();
 /*
  * ViewFunction
  */
